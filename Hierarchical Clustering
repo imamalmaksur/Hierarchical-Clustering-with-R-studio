@@ -1,0 +1,54 @@
+library(tidyverse)  # data manipulation
+library(cluster)    # clustering algorithms
+library(factoextra)
+library(ggplot2)
+library(sparcl)
+
+#Input Data
+datakp= read.delim("clipboard", header = TRUE)
+datakp=data.frame(datakp)
+
+#Menampilkan enam data pertama
+head(datakp)
+tail(datakp)
+
+#analisis deskriptif
+Data = datakp[,c(2:8)]
+rownames(Data) <- datakp$Provinsi[1:34]
+summary(is.na(Data))
+summary(Data)
+
+#melihat pengukuran jarak cluster
+distance <- get_dist(datakp[-1])
+fviz_dist(distance, gradient = list(low = "#00AFBB", mid = "white", high = "#FC4E07"))
+
+# melihat data
+str(datakp)
+
+# dengan metode ward.D
+kluster_hirarki <- hclust(dist(datakp[, 2:8]), method = 'ward.D')
+str(kluster_hirarki)
+plot(kluster_hirarki)
+
+#plot dendogram metode ward.D
+plot2 <- plot(kluster_hirarki, hang=-1,col='black',
+main='ClusterDendrogram',sub='',xlab='Provinsi',ylab='Indeks') 
+rect.hclust(kluster_hirarki, k=3, border="red") 
+
+# mengambil 3 klaster
+group <- cutree(kluster_hirarki,3)
+
+# membuat tabel perbandingan
+table(group, datakp$Provinsi)
+
+#uji korelasi
+cor.data=round(cor(datakp[,2:8]),3)
+cor.data
+det(cor.data)
+library(psych)
+
+#Uji KMO
+KMO(cor.data)
+
+#Uji Bartlett
+bartlett.test(Data)
